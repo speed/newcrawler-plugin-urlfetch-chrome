@@ -9,7 +9,7 @@ https://github.com/SeleniumHQ/docker-selenium/tree/master/StandaloneChrome
 
   docker run -d -P -p 4444:4444 selenium/standalone-chrome
 
-# webdriver chrome.driver
+# RemoteWebDriver chrome.driver
 
   http://xxx.xxx.xxx.xxx:4444/wd/hub
 
