@@ -1,0 +1,29 @@
+{
+"update_url": "https://clients2.google.com/service/update2/crx",
+
+  "name": "ModHeader",
+  "version": "2.1.1",
+  "manifest_version": 2,
+  "description": "Modify request and response headers",
+  "background":  {
+    "scripts": [ "scripts/angular.min.js", "background.js", "ga.js" ]
+  },
+  "browser_action": {
+    "default_icon": "icon.png",
+    "default_title": "Modify Headers",
+    "default_popup": "popup.html"
+  },
+  "icons": {
+    "16": "icon_16.png",
+    "48": "icon_48.png",
+    "128": "icon_128.png"
+  },
+  "incognito": "spanning",
+  "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
+  "permissions": [
+    "storage",
+    "webRequest",
+    "webRequestBlocking",
+    "<all_urls>"
+  ]
+}
