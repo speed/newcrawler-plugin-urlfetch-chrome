@@ -1,6 +1,8 @@
 var SPECIAL_CHARS = '^$&+?.()|{}[]/'.split('');
 var currentProfile;
 
+
+	
 /**
  * Check whether the current request url pass the given list of filters.
  */
@@ -134,6 +136,45 @@ function modifyResponseHeaderHandler_(details) {
     return {responseHeaders: responseHeaders};
   }
 };
+
+
+function requestHandler_(details) {
+	var url=details.url;
+	
+	var jsFilterRegexs=localStorage.jsFilterRegexs;
+	var jsFilterType=localStorage.jsFilterType;
+	
+	if (jsFilterRegexs != '') {
+		var match = url.match("/"+jsFilterRegexs+"/gi"); 
+		if (jsFilterType == 'include') {
+			if (match == null) {
+				console.log('abort url: ' + url); 
+				return {cancel: true}; 
+			}
+		}else{
+			if (match != null) {
+				console.log('abort url: ' + url);
+				return {cancel: true};
+			}
+		}
+	}
+	var allUrls=localStorage.allUrls;
+	if(allUrls==''){
+		allUrls=url;
+	}else{
+		allUrls=allUrls+"|$|"+url;
+	}
+	localStorage.allUrls=allUrls;
+	
+	console.log('allUrls: ' + localStorage.allUrls);
+	return {};
+};
+
+chrome.webRequest.onBeforeRequest.addListener(
+		requestHandler_, 
+		{urls: ["*://*/*"]}, 
+		['blocking']
+	);
 
 chrome.webRequest.onBeforeSendHeaders.addListener(
   modifyRequestHeaderHandler_,
