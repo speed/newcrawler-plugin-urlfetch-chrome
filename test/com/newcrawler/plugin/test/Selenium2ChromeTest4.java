@@ -36,34 +36,36 @@ public class Selenium2ChromeTest4  {
 
             ChromeOptions options =new ChromeOptions(); 
             options.setExperimentalOption("prefs", prefs); 
-            options.addExtensions(new File("D:\\workspace\\speed\\newcrawler-plugin-urlfetch-chrome\\crx\\ModHeader.crx"));
+            //options.addExtensions(new File("C:\\Users\\wisers\\git\\newcrawler-plugin-urlfetch-chrome\\crx\\ModHeader.crx"));
             
             DesiredCapabilities chromeCaps = DesiredCapabilities.chrome(); 
             chromeCaps.setCapability(ChromeOptions.CAPABILITY, options); 
             
         	driver = new ChromeDriver(chromeCaps);
         	
-        	// set the context on the extension so the localStorage can be accessed
-        	driver.get("chrome-extension://lckeakbpejeglofehipgmkihbbfejbpi/icon.png");
+        	/*// set the context on the extension so the localStorage can be accessed
+        	driver.get("chrome-extension://hckgkplabbelodmlbgjfocldjejlogbk/icon.png");
         	
         	// setup ModHeader with two headers (token1 and token2)
         	((JavascriptExecutor)driver).executeScript(
         	    "localStorage.setItem('profiles', JSON.stringify([{                " +
         	    "  title: 'Selenium', hideComment: true, appendMode: '',           " +
         	    "  headers: [                                                      " +
-        	    "    {enabled: true, name: 'token1', value: 'test1', comment: ''}, " +
-        	    "    {enabled: true, name: 'token2', value: 'test2', comment: ''}  " +
+        	    //"    {enabled: true, name: 'token1', value: 'test1', comment: ''}, " +
+        	    //"    {enabled: true, name: 'token2', value: 'test2', comment: ''}  " +
         	    "  ],                                                              " +
         	    "  respHeaders: [],                                                " +
         	    "  filters: []                                                     " +
-        	    "}]));                                                             " );
+        	    "}]));                                                             " );*/
         	
         	
-        	driver.navigate().to("http://china.newcrawler.com/header");
+        	driver.navigate().to("http://119.254.209.77");
         	
+        	((JavascriptExecutor)driver).executeScript("document.getElementById('_ctl0__ctl0_Content_MenuHyperLink14').click();");
+        			
             String content=driver.getPageSource();
             
-            FileUtils.writeStringToFile(new File("/root/list.html"), content);
+            FileUtils.writeStringToFile(new File("d:/js/html/test.html"), content);
             // Check the title of the page
             System.out.println("Page source: " + content);
             System.out.println("getCurrentUrl: " + driver.getCurrentUrl());
