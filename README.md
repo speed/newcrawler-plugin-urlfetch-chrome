@@ -1,7 +1,7 @@
 
-[![Wercker](https://img.shields.io/wercker/ci/wercker/docs.svg?maxAge=2592000)]()
-[![npm](https://img.shields.io/npm/dm/localeval.svg?maxAge=2592000)]()
-[![Coveralls branch](https://img.shields.io/coveralls/jekyll/jekyll/master.svg?maxAge=2592000)]()
+[![Wercker](https://img.shields.io/wercker/ci/wercker/docs.svg?maxAge=2592000)](https://github.com/speed/newcrawler-plugin-urlfetch-chrome)
+[![npm](https://img.shields.io/npm/dm/localeval.svg?maxAge=2592000)](https://github.com/speed/newcrawler-plugin-urlfetch-chrome)
+[![Coveralls branch](https://img.shields.io/coveralls/jekyll/jekyll/master.svg?maxAge=2592000)](https://github.com/speed/newcrawler-plugin-urlfetch-chrome)
 
 
 
