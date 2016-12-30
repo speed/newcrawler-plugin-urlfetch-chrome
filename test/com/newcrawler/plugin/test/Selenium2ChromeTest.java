@@ -13,6 +13,7 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.Platform;
+import org.openqa.selenium.Proxy;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.DesiredCapabilities;
@@ -29,7 +30,7 @@ public class Selenium2ChromeTest  {
     		
     		//System.setProperty("webdriver.chrome.driver", "/root/chromedriver");
     		System.setProperty("webdriver.chrome.driver", "http://192.168.45.21:5555/wd/hub");
-    		//System.setProperty("webdriver.chrome.driver", "/Users/liaolianwu/Documents/workspace/newcrawler-plugin-urlfetch-chrome/driver/chromedriver_mac64/chromedriver");
+    		System.setProperty("webdriver.chrome.driver", "/Users/liaolianwu/Documents/workspace/newcrawler-plugin-urlfetch-chrome/driver/chromedriver_mac64/chromedriver");
     		
         	HashMap<String, Object> settings = new HashMap<String, Object>(); 
         	settings.put("images", 2); //disabled load images
@@ -43,14 +44,19 @@ public class Selenium2ChromeTest  {
             options.setExperimentalOption("prefs", prefs); 
             options.addExtensions(new File("/Users/liaolianwu/Documents/workspace/newcrawler-plugin-urlfetch-chrome/crx/ModHeader.crx"));
             
+            
+            
             DesiredCapabilities chromeCaps = DesiredCapabilities.chrome(); 
             chromeCaps.setCapability(ChromeOptions.CAPABILITY, options); 
             
 
-			driver = new RemoteWebDriver(new URL("http://192.168.45.21:5555/wd/hub"),  chromeCaps);
+            Proxy proxy = new Proxy();
+        	proxy.setHttpProxy("192.168.44.244:8888");
+        	proxy.setSslProxy("192.168.44.244:8888");
 
+        	driver = new ChromeDriver(chromeCaps);
 			
-        	driver.navigate().to("http://china.newcrawler.com/header");
+        	driver.navigate().to("http://list.jd.com/list.html?cat=737,794,798");
         	
             String content=driver.getPageSource();
             

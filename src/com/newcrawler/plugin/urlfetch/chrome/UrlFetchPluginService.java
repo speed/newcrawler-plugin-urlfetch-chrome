@@ -217,7 +217,9 @@ public class UrlFetchPluginService implements UrlFetchPlugin{
 			        	if(proxyType!=null && "socks5".equals(proxyType)){
 			        		proxy.setSocksProxy(proxyIP+":"+proxyPort);
 			        	}else{
-			        		proxy.setHttpProxy(proxyIP+":"+proxyPort);
+			        		String proxyaddr=proxyIP+":"+proxyPort;
+			        		proxy.setHttpProxy(proxyaddr);
+			        		proxy.setSslProxy(proxyaddr);
 			        	}
 			        	if(proxyUsername!=null && proxyPassword!=null){
 		        			proxy.setSocksUsername(proxyUsername);
@@ -247,6 +249,7 @@ public class UrlFetchPluginService implements UrlFetchPlugin{
 				}
 				driver.manage().timeouts().pageLoadTimeout(pageLoadTimeout, TimeUnit.MILLISECONDS);
 				driver.manage().timeouts().setScriptTimeout(scriptTimeout, TimeUnit.MILLISECONDS);
+				driver.manage().timeouts().implicitlyWait(2000, TimeUnit.MILLISECONDS);
 			}
 		}
 		String customHeaders="";
