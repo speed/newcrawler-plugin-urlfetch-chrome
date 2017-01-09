@@ -2,6 +2,7 @@ package com.newcrawler.plugin.urlfetch.chrome;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.SocketException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -17,12 +18,17 @@ import org.apache.commons.logging.LogFactory;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Proxy;
+import org.openqa.selenium.UnexpectedAlertBehaviour;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
+import com.google.common.base.Predicate;
 import com.soso.plugin.UrlFetchPlugin;
 import com.soso.plugin.bo.HttpCookieBo;
 import com.soso.plugin.bo.UrlFetchPluginBo;
@@ -52,7 +58,12 @@ public class UrlFetchPluginService implements UrlFetchPlugin{
 	
 	public void destory() {
 		if(driver!=null){
-			driver.quit();
+			try{
+				driver.quit();
+			}catch(Exception e){
+				logger.error(e.getMessage());
+			}
+			driver=null;
 		}
 	}
 
@@ -68,8 +79,8 @@ public class UrlFetchPluginService implements UrlFetchPlugin{
 		String jsFilterRegexs = null;
 		String jsFilterType = DEFAULT_JS_FILTER_TYPE;
 		String jsCacheRegexs = null;
-		int timeoutConnection=60000;
-		int timeoutJavascript=5000;
+		int timeoutConnection=45000;
+		int timeoutJavascript=20000;
 		
 		String proxyIP=null;
 		int proxyPort=-1;
@@ -200,12 +211,18 @@ public class UrlFetchPluginService implements UrlFetchPlugin{
 			logger.error(e);
 		} catch (IOException e) {
 			logger.error(e);
+		} catch (WebDriverException e){
+			String msg=e.getMessage();
+			logger.error(msg);
+			if(msg.indexOf("not reachable")!=-1){
+				destory();
+				map=read(proxyIP, proxyPort, proxyUsername, proxyPassword, proxyType, chromeExtensions, chromeDriver, headers, crawlUrl, method, encoding, 
+						jsFilterType, filterRegexs, jsList, cacheRegexs, timeoutConnection, timeoutJavascript);
+			}
 		}
 		return map;
 	}
-	
-	private Map<String, Object> read(String proxyIP, int proxyPort, final String proxyUsername, final String proxyPassword, final String proxyType, String chromeExtensions, String chromeDriver, Map<String, String> headers, String crawlUrl, String method, String encoding,
-			String jsFilterType, String jsFilterRegexs, List<String> jsList, String jsCacheRegexs, final long pageLoadTimeout, final long scriptTimeout) throws IOException{
+	private void initDriver(String proxyIP, int proxyPort, final String proxyUsername, final String proxyPassword, final String proxyType, String chromeExtensions, String chromeDriver, final long pageLoadTimeout, final long scriptTimeout) throws MalformedURLException{
 		if(driver==null){
 			synchronized (this) {
 				if(driver==null){
@@ -227,6 +244,7 @@ public class UrlFetchPluginService implements UrlFetchPlugin{
 		        		}
 			        	capabilities.setCapability("proxy", proxy);
 			        }
+			        capabilities.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE);
 			        
 			        HashMap<String, Object> settings = new HashMap<String, Object>(); 
 		        	settings.put("images", 2); //disabled load images
@@ -252,6 +270,11 @@ public class UrlFetchPluginService implements UrlFetchPlugin{
 				driver.manage().timeouts().implicitlyWait(2000, TimeUnit.MILLISECONDS);
 			}
 		}
+	}
+	private Map<String, Object> read(String proxyIP, int proxyPort, final String proxyUsername, final String proxyPassword, final String proxyType, String chromeExtensions, String chromeDriver, Map<String, String> headers, String crawlUrl, String method, String encoding,
+			String jsFilterType, String jsFilterRegexs, List<String> jsList, String jsCacheRegexs, final long pageLoadTimeout, final long scriptTimeout) throws IOException{
+		initDriver(proxyIP, proxyPort, proxyUsername, proxyPassword, proxyType, chromeExtensions, chromeDriver, pageLoadTimeout, scriptTimeout);
+		
 		String customHeaders="";
 		for(String key:headers.keySet()){
 			if("Accept-Encoding".equals(key)){
@@ -281,10 +304,42 @@ public class UrlFetchPluginService implements UrlFetchPlugin{
     	    "  filters: []                                                     " +
     	    "}]));                                                             " );
     	
-        driver.get(crawlUrl);
-        String pageSource=driver.getPageSource();
-		String currentUrl=driver.getCurrentUrl();
-		Object outputEncoding=((JavascriptExecutor)driver).executeScript("return document.charset;");
+    	driver.get(crawlUrl);
+    	
+    	final String completeScript=""
+    			+ "var i, frames, result='complete';"
+/*    			+ "frames = document.getElementsByTagName('iframe');"
+    			+ "for (i = 0; i < frames.length; ++i){"
+    			+ "	var iframeDoc = frames[i].contentDocument || frames[i].contentWindow.document;"
+    			+ "	console.log(frames[i]);"
+    			+ "	if (  iframeDoc.readyState  != 'complete' ) {"
+    			+ "		result='loading';"
+    			+ "		break;"
+    			+ "	}"
+    			+ "}"*/
+    			+ "if (  document.readyState  != 'complete' ) {"
+    			+ "		result='loading';"
+    			+ "}"
+    			+ "return result;";
+    			
+    	
+        Predicate<WebDriver> pageLoaded = new Predicate<WebDriver>() {
+            public boolean apply(WebDriver input) {
+            	boolean result=((JavascriptExecutor) input).executeScript(completeScript).equals("complete");
+            	//System.out.println(result);
+                return result;
+            }
+        };
+        try{
+        	new WebDriverWait(driver, 6, 500).until(pageLoaded);
+        }catch(RuntimeException e){
+        	logger.warn(e.getMessage());
+        }
+        try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+		}
+        Object outputEncoding=((JavascriptExecutor)driver).executeScript("return document.charset;");
 		
         Date nowDate=new Date();
 		long nowTime=nowDate.getTime();
@@ -309,14 +364,18 @@ public class UrlFetchPluginService implements UrlFetchPlugin{
 		}
 		driver.manage().deleteAllCookies();
 		
+		String pageSource=driver.getPageSource();
+		String currentUrl=driver.getCurrentUrl();
 		
 		driver.get("chrome-extension://"+extensionId+"/blank.html");
         Object jsUrl=((JavascriptExecutor)driver).executeScript("return localStorage.getItem('allUrls');");
-        
-        String[] jsUrls = jsUrl.toString().split("\\Q|$|\\E");
-        for(String js:jsUrls){
-        	jsList.add(js);
+        if(jsUrl!=null){
+        	String[] jsUrls = jsUrl.toString().split("\\Q|$|\\E");
+            for(String js:jsUrls){
+            	jsList.add(js);
+            }
         }
+        
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put(RETURN_DATA_KEY_CONTENT, pageSource);
 		map.put(RETURN_DATA_KEY_REALURL, currentUrl);

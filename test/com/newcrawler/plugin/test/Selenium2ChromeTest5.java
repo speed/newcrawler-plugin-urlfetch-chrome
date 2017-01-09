@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
-import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -46,7 +45,6 @@ public class Selenium2ChromeTest5  {
         			
             String content=driver.getPageSource();
             
-            FileUtils.writeStringToFile(new File("d:/js/html/test.html"), content);
             // Check the title of the page
             System.out.println("Page source: " + content);
             System.out.println("getCurrentUrl: " + driver.getCurrentUrl());

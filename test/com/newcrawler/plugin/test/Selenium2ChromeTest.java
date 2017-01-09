@@ -1,25 +1,14 @@
 package com.newcrawler.plugin.test;
 
-import java.beans.Statement;
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
-import org.openqa.selenium.Platform;
 import org.openqa.selenium.Proxy;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
-
-import com.sun.jndi.ldap.Connection;
 
 public class Selenium2ChromeTest  {
 	
