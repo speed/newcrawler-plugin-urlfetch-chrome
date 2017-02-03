@@ -205,6 +205,7 @@ public class UrlFetchPluginService implements UrlFetchPlugin{
 		List<String> jsList = new ArrayList<String>();
 		Map<String, Object> map=null;
 		try {
+			logger.info("Chrome plugin loading...");
 			map=read(proxyIP, proxyPort, proxyUsername, proxyPassword, proxyType, chromeExtensions, chromeDriver, headers, crawlUrl, method, encoding, 
 					jsFilterType, filterRegexs, jsList, cacheRegexs, timeoutConnection, timeoutJavascript);
 		} catch (SocketException e) {
@@ -212,13 +213,12 @@ public class UrlFetchPluginService implements UrlFetchPlugin{
 		} catch (IOException e) {
 			logger.error(e);
 		} catch (WebDriverException e){
-			String msg=e.getMessage();
 			logger.error(e);
-			if(msg.indexOf("not reachable")!=-1){
-				destory();
-				map=read(proxyIP, proxyPort, proxyUsername, proxyPassword, proxyType, chromeExtensions, chromeDriver, headers, crawlUrl, method, encoding, 
-						jsFilterType, filterRegexs, jsList, cacheRegexs, timeoutConnection, timeoutJavascript);
-			}
+			//Connection refused (Connection refused)
+			//not reachable
+			destory();
+			map=read(proxyIP, proxyPort, proxyUsername, proxyPassword, proxyType, chromeExtensions, chromeDriver, headers, crawlUrl, method, encoding, 
+					jsFilterType, filterRegexs, jsList, cacheRegexs, timeoutConnection, timeoutJavascript);
 		}
 		return map;
 	}
