@@ -61,7 +61,7 @@ public class UrlFetchPluginService implements UrlFetchPlugin{
 			try{
 				driver.quit();
 			}catch(Exception e){
-				logger.error(e.getMessage());
+				logger.error(e);
 			}
 			driver=null;
 		}
@@ -213,7 +213,7 @@ public class UrlFetchPluginService implements UrlFetchPlugin{
 			logger.error(e);
 		} catch (WebDriverException e){
 			String msg=e.getMessage();
-			logger.error(msg);
+			logger.error(e);
 			if(msg.indexOf("not reachable")!=-1){
 				destory();
 				map=read(proxyIP, proxyPort, proxyUsername, proxyPassword, proxyType, chromeExtensions, chromeDriver, headers, crawlUrl, method, encoding, 
