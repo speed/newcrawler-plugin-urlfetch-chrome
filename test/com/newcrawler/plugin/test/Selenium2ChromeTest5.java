@@ -20,7 +20,7 @@ public class Selenium2ChromeTest5  {
     	ChromeDriver driver=null;
     	try{
     		
-    		System.setProperty("webdriver.chrome.driver", "d:/js/chromedriver.exe");
+    		System.setProperty("webdriver.chrome.driver", "E:\\speed\\eclipse-workspace\\newcrawler-plugin-urlfetch-chrome\\driver\\chromedriver_win32.2.45\\chromedriver.exe");
         	
         	HashMap<String, Object> settings = new HashMap<String, Object>(); 
         	settings.put("images", 2); //disabled load images

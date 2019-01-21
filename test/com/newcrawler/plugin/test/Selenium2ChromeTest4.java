@@ -9,8 +9,6 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
-import com.sun.jna.platform.FileUtils;
-
 public class Selenium2ChromeTest4  {
 	
 	/**

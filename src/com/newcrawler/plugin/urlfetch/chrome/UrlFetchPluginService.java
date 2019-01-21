@@ -24,11 +24,10 @@ import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.CapabilityType;
-import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import com.google.common.base.Predicate;
 import com.soso.plugin.UrlFetchPlugin;
 import com.soso.plugin.bo.HttpCookieBo;
 import com.soso.plugin.bo.UrlFetchPluginBo;
@@ -53,7 +52,7 @@ public class UrlFetchPluginService implements UrlFetchPlugin{
 	private static final String DEFAULT_JS_FILTER_TYPE = "include";
 	
 	private WebDriver driver=null;
-	private DesiredCapabilities capabilities;
+	private ChromeOptions options;
 	private static final String extensionId="hckgkplabbelodmlbgjfocldjejlogbk";
 	
 	public void destory() {
@@ -227,7 +226,8 @@ public class UrlFetchPluginService implements UrlFetchPlugin{
 			synchronized (this) {
 				if(driver==null){
 					//https://sites.google.com/a/chromium.org/chromedriver/capabilities
-					capabilities = DesiredCapabilities.chrome();
+					options = new ChromeOptions();
+					
 			        if(proxyIP!=null){
 			        	// Add the WebDriver proxy capability.
 			        	Proxy proxy = new Proxy();
@@ -242,9 +242,9 @@ public class UrlFetchPluginService implements UrlFetchPlugin{
 		        			proxy.setSocksUsername(proxyUsername);
 		        			proxy.setSocksPassword(proxyPassword);
 		        		}
-			        	capabilities.setCapability("proxy", proxy);
+			        	options.setCapability("proxy", proxy);
 			        }
-			        capabilities.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE);
+			        options.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE);
 			        
 			        HashMap<String, Object> settings = new HashMap<String, Object>(); 
 		        	settings.put("images", 2); //disabled load images
@@ -254,14 +254,14 @@ public class UrlFetchPluginService implements UrlFetchPlugin{
 		            options.setExperimentalOption("prefs", prefs); 
 		            options.addExtensions(new File(chromeExtensions));
 		            
-		            capabilities.setCapability(ChromeOptions.CAPABILITY, options); 
+		            options.setCapability(ChromeOptions.CAPABILITY, options); 
 		            
 		            System.clearProperty("webdriver.chrome.driver");
 		            if(chromeDriver.startsWith("http://")){
-		            	driver = new RemoteWebDriver(new URL(chromeDriver), capabilities);
+		            	driver = new RemoteWebDriver(new URL(chromeDriver), options);
 		            }else{
 		            	System.setProperty("webdriver.chrome.driver", chromeDriver);
-		            	driver = new ChromeDriver(capabilities);
+		            	driver = new ChromeDriver(options);
 		            }
 		            
 				}
@@ -305,40 +305,11 @@ public class UrlFetchPluginService implements UrlFetchPlugin{
     	    "}]));                                                             " );
     	
     	driver.get(crawlUrl);
-    	
-    	final String completeScript=""
-    			+ "var i, frames, result='complete';"
-/*    			+ "frames = document.getElementsByTagName('iframe');"
-    			+ "for (i = 0; i < frames.length; ++i){"
-    			+ "	var iframeDoc = frames[i].contentDocument || frames[i].contentWindow.document;"
-    			+ "	console.log(frames[i]);"
-    			+ "	if (  iframeDoc.readyState  != 'complete' ) {"
-    			+ "		result='loading';"
-    			+ "		break;"
-    			+ "	}"
-    			+ "}"*/
-    			+ "if (  document.readyState  != 'complete' ) {"
-    			+ "		result='loading';"
-    			+ "}"
-    			+ "return result;";
-    			
-    	
-        Predicate<WebDriver> pageLoaded = new Predicate<WebDriver>() {
-            public boolean apply(WebDriver input) {
-            	boolean result=((JavascriptExecutor) input).executeScript(completeScript).equals("complete");
-            	//System.out.println(result);
-                return result;
-            }
-        };
         try{
-        	new WebDriverWait(driver, 6, 500).until(pageLoaded);
+        	waitForJStoLoad();
         }catch(RuntimeException e){
         	logger.warn(e.getMessage());
         }
-        try {
-			Thread.sleep(100);
-		} catch (InterruptedException e) {
-		}
         Object outputEncoding=((JavascriptExecutor)driver).executeScript("return document.charset;");
 		
         Date nowDate=new Date();
@@ -451,6 +422,46 @@ public class UrlFetchPluginService implements UrlFetchPlugin{
 			}
         }
         return sb.toString();
+	}
+	
+	public boolean waitForJStoLoad() {
+		try {
+			Thread.sleep(200);
+		} catch (InterruptedException e) {
+			logger.fatal("Timeout waiting for Page Load Request to complete.");
+		}
+	    WebDriverWait wait = new WebDriverWait(driver, 6, 500);
+	    // wait for Javascript to load
+	    
+	    /*
+	    final String completeScript=""
+    			+ "var i, frames, result='complete';"
+    			+ "frames = document.getElementsByTagName('iframe');"
+    			+ "for (i = 0; i < frames.length; ++i){"
+    			+ "	var iframeDoc = frames[i].contentDocument || frames[i].contentWindow.document;"
+    			+ "	console.log(frames[i]);"
+    			+ "	if (  iframeDoc.readyState  != 'complete' ) {"
+    			+ "		result='loading';"
+    			+ "		break;"
+    			+ "	}"
+    			+ "}"
+    			+ "return result;";
+	    ExpectedCondition<Boolean> iframeLoad = new ExpectedCondition<Boolean>() {
+	      public Boolean apply(WebDriver driver) {
+	    	  Boolean finished=((JavascriptExecutor) driver).executeScript(javascript).toString().equals("complete");
+	    	  return finished;
+	      }
+	    };
+	    */
+	    
+	    ExpectedCondition<Boolean> jsLoad = new ExpectedCondition<Boolean>() {
+		      public Boolean apply(WebDriver driver) {
+		    	  Boolean finished=((JavascriptExecutor) driver).executeScript("return document.readyState").toString().equals("complete");
+		    	  return finished;
+		      }
+		    };
+	    
+	  return wait.until(jsLoad);
 	}
 
 }

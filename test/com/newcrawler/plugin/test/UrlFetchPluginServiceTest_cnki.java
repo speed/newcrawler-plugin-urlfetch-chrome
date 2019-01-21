@@ -17,23 +17,23 @@ public class UrlFetchPluginServiceTest_cnki  {
 		
 		try{
 			Map<String, String> properties=new HashMap<String, String>(); 
-			properties.put(UrlFetchPluginService.PROXY_IP, "127.0.0.1");
-			properties.put(UrlFetchPluginService.PROXY_PORT, String.valueOf(8888));
-			properties.put(UrlFetchPluginService.PROXY_TYPE, "http");
+			//properties.put(UrlFetchPluginService.PROXY_IP, "127.0.0.1");
+			//properties.put(UrlFetchPluginService.PROXY_PORT, String.valueOf(8888));
+			//properties.put(UrlFetchPluginService.PROXY_TYPE, "http");
 			
 			properties.put(UrlFetchPluginService.PROPERTIES_JS_FILTER_TYPE, "include");
 			
 			properties.put(UrlFetchPluginService.CHROME_DRIVER, "D:/js/chromedriver.exe");
-			properties.put(UrlFetchPluginService.CHROME_DRIVER, "D:/js/chromedriver_win32_2.25/chromedriver.exe");
+			properties.put(UrlFetchPluginService.CHROME_DRIVER, "E:\\speed\\eclipse-workspace\\newcrawler-plugin-urlfetch-chrome\\driver\\chromedriver_win32.2.45\\chromedriver.exe");
 			
-			properties.put(UrlFetchPluginService.CHROME_EXTENSIONS_MODHEADER, "D:/Workspace/workspace j2ee/newcrawler-plugin-urlfetch-chrome/crx/ModHeader.crx");
+			properties.put(UrlFetchPluginService.CHROME_EXTENSIONS_MODHEADER, "E:\\speed\\eclipse-workspace\\newcrawler-plugin-urlfetch-chrome\\crx\\ModHeader.crx");
 			
 			Map<String, String> headers=new HashMap<String, String>(); 
 			
 			String crawlUrl="http://epub.cnki.net/kns/brief/result.aspx?dbPrefix=scdb&action=scdbsearch&db_opt=SCDB";
 			//crawlUrl="http://item.jd.com/1861098.html"; 
 			String method=null; 
-			String userAgent="Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.82 Safari/537.36"; 
+			String userAgent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36"; 
 			String encoding="GB2312";
 			List<HttpCookieBo> cookieList=new ArrayList<HttpCookieBo>();
 			
