@@ -19,12 +19,12 @@
   https://github.com/speed/selenium
   
   #Centos
-  wget --no-check-certificate --no-verbose https://raw.githubusercontent.com/speed/selenium/master/Centos.sh \
-  && sh Centos.sh
+  wget --no-check-certificate --no-verbose https://raw.githubusercontent.com/speed/selenium/master/Centos.sh -O Selenium-Chrome.sh \
+  && sh Selenium-Chrome.sh
   
   #Ubuntu
-  wget --no-check-certificate --no-verbose https://raw.githubusercontent.com/speed/selenium/master/Ubuntu.sh \
-  && sh Ubuntu.sh
+  wget --no-check-certificate --no-verbose https://raw.githubusercontent.com/speed/selenium/master/Ubuntu.sh -O Selenium-Chrome.sh \
+  && sh Selenium-Chrome.sh
 ```
 
 # RemoteWebDriver chrome.driver
