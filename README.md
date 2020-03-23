@@ -3,7 +3,10 @@
 [![npm](https://img.shields.io/npm/dm/localeval.svg?maxAge=2592000)](https://github.com/speed/newcrawler-plugin-urlfetch-chrome)
 [![Coveralls branch](https://img.shields.io/coveralls/jekyll/jekyll/master.svg?maxAge=2592000)](https://github.com/speed/newcrawler-plugin-urlfetch-chrome)
 
-
+## Chrome Driver
+```
+    http://npm.taobao.org/mirrors/chromedriver/
+```
 # Install linux chrome
 
 ## Docker
