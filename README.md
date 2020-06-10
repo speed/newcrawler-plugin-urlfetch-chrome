@@ -30,6 +30,13 @@
   && sh Selenium-Chrome.sh
 ```
 
+## Windows
+```
+  Download install google chrome
+  https://www.google.com/chrome/
+  
+```
+
 # RemoteWebDriver chrome.driver
 
   http://127.0.0.1:4444/wd/hub

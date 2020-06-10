@@ -10,7 +10,9 @@
 	<path id="master-classpath">
 		<!-- reference project libraries -->
 		<fileset dir="lib">
-			<include name="**/*.jar" />
+			<include name="selenium-3.141.59/*.jar" />
+			<include name="selenium-3.141.59/libs/*.jar" />
+			<include name="*.jar" />
 		</fileset>
 	</path>
 
@@ -29,7 +31,7 @@
 	</target>
 
 	<target name="compile" depends="init,clean">
-		<javac srcdir="${src_dir}" destdir="${classes_dir}" encoding="utf-8" debug="true" failonerror="true" source="1.7" target="1.7" includeantruntime="false">
+		<javac srcdir="${src_dir}" destdir="${classes_dir}" encoding="utf-8" debug="true" failonerror="true" source="1.8" target="1.8" includeantruntime="false">
 			<classpath refid="master-classpath" />
 		</javac>
 	</target>
@@ -44,7 +46,7 @@
 				<attribute name="Built-By" value="${user.name}" />
 			</manifest>
 			<fileset dir="${classes_dir}" />
-			<fileset dir="${src_dir}" excludes="**/*.java" />
+			<fileset dir="${src_dir}" includes="system.properties" />
 		</jar>
 		<zip destfile="${dist_dir}/${module.src.full.name}.zip" basedir="${src_dir}" whenempty="create" />
 		

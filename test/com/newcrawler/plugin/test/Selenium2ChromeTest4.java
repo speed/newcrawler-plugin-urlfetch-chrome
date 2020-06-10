@@ -23,7 +23,7 @@ public class Selenium2ChromeTest4  {
     	ChromeDriver driver=null;
     	try{
     		
-    		System.setProperty("webdriver.chrome.driver", "d:/js/chromedriver.exe");
+    		System.setProperty("webdriver.chrome.driver", "D:/js/chromedriver_win32_80.0.3987.106/chromedriver.exe");
         	
         	HashMap<String, Object> settings = new HashMap<String, Object>(); 
         	settings.put("images", 2); //disabled load images
@@ -35,12 +35,13 @@ public class Selenium2ChromeTest4  {
 
             ChromeOptions options =new ChromeOptions(); 
             options.setExperimentalOption("prefs", prefs); 
+            options.addArguments("--headless");
             //options.addExtensions(new File("C:\\Users\\wisers\\git\\newcrawler-plugin-urlfetch-chrome\\crx\\ModHeader.crx"));
             
             DesiredCapabilities chromeCaps = DesiredCapabilities.chrome(); 
             chromeCaps.setCapability(ChromeOptions.CAPABILITY, options); 
             
-        	driver = new ChromeDriver(chromeCaps);
+        	driver = new ChromeDriver(options);
         	
         	/*// set the context on the extension so the localStorage can be accessed
         	driver.get("chrome-extension://hckgkplabbelodmlbgjfocldjejlogbk/icon.png");
@@ -58,10 +59,8 @@ public class Selenium2ChromeTest4  {
         	    "}]));                                                             " );*/
         	
         	
-        	driver.navigate().to("http://119.254.209.77");
+        	driver.navigate().to("https://www.google.com/");
         	
-        	((JavascriptExecutor)driver).executeScript("document.getElementById('_ctl0__ctl0_Content_MenuHyperLink14').click();");
-        			
             String content=driver.getPageSource();
             
             // Check the title of the page

@@ -45,6 +45,7 @@ public class UrlFetchPluginService implements UrlFetchPlugin{
 	public static final String PROXY_TYPE = "proxy.type";
 	public static final String CHROME_DRIVER = "chrome.driver";
 	public static final String CHROME_EXTENSIONS_MODHEADER = "chrome.extensions.modHeader";
+	public static final String CHROME_ARGUMENTS = "chrome.arguments";
 	
 	public static final String PROPERTIES_JS_FILTER_REGEXS = "js.filter.regexs";
 	public static final String PROPERTIES_JS_FILTER_TYPE = "js.filter.type";
@@ -52,7 +53,7 @@ public class UrlFetchPluginService implements UrlFetchPlugin{
 	private static final String DEFAULT_JS_FILTER_TYPE = "include";
 	
 	private WebDriver driver=null;
-	private ChromeOptions options;
+	private ChromeOptions options = new ChromeOptions();
 	private static final String extensionId="hckgkplabbelodmlbgjfocldjejlogbk";
 	
 	public void destory() {
@@ -89,6 +90,7 @@ public class UrlFetchPluginService implements UrlFetchPlugin{
 		
 		String chromeExtensions=null;
 		String chromeDriver=null;
+		String chromeArguments=null;
 		
 		if (properties != null) {
 			if (properties.containsKey(PROPERTIES_JS_FILTER_REGEXS) && properties.get(PROPERTIES_JS_FILTER_REGEXS)!=null 
@@ -142,14 +144,9 @@ public class UrlFetchPluginService implements UrlFetchPlugin{
 			if (properties.containsKey(CHROME_DRIVER) && !"".equals(properties.get(CHROME_DRIVER).trim())) {
 				chromeDriver = properties.get(CHROME_DRIVER).trim();
 			}
-		}
-		if(chromeDriver==null){
-			logger.error("Chrome driver is required.");
-			return null;
-		}
-		if(chromeExtensions==null){
-			logger.error("Chrome extensions 'ModHeader' is required.");
-			return null;
+			if (properties.containsKey(CHROME_ARGUMENTS) && !"".equals(properties.get(CHROME_ARGUMENTS).trim())) {
+				chromeArguments = properties.get(CHROME_ARGUMENTS).trim();
+			}
 		}
 		String filterRegexs = "";
 		if (jsFilterRegexs != null && !"".equals(jsFilterRegexs.trim())) {
@@ -205,7 +202,7 @@ public class UrlFetchPluginService implements UrlFetchPlugin{
 		Map<String, Object> map=null;
 		try {
 			logger.info("Chrome plugin loading...");
-			map=read(proxyIP, proxyPort, proxyUsername, proxyPassword, proxyType, chromeExtensions, chromeDriver, headers, crawlUrl, method, encoding, 
+			map=read(proxyIP, proxyPort, proxyUsername, proxyPassword, proxyType, chromeExtensions, chromeDriver, chromeArguments, headers, crawlUrl, method, encoding, 
 					jsFilterType, filterRegexs, jsList, cacheRegexs, timeoutConnection, timeoutJavascript);
 		} catch (SocketException e) {
 			logger.error(e);
@@ -216,17 +213,17 @@ public class UrlFetchPluginService implements UrlFetchPlugin{
 			//Connection refused (Connection refused)
 			//not reachable
 			destory();
-			map=read(proxyIP, proxyPort, proxyUsername, proxyPassword, proxyType, chromeExtensions, chromeDriver, headers, crawlUrl, method, encoding, 
+			map=read(proxyIP, proxyPort, proxyUsername, proxyPassword, proxyType, chromeExtensions, chromeDriver, chromeArguments, headers, crawlUrl, method, encoding, 
 					jsFilterType, filterRegexs, jsList, cacheRegexs, timeoutConnection, timeoutJavascript);
 		}
 		return map;
 	}
-	private void initDriver(String proxyIP, int proxyPort, final String proxyUsername, final String proxyPassword, final String proxyType, String chromeExtensions, String chromeDriver, final long pageLoadTimeout, final long scriptTimeout) throws MalformedURLException{
+	private void initDriver(String proxyIP, int proxyPort, final String proxyUsername, final String proxyPassword, final String proxyType, 
+			String chromeExtensions, String chromeDriver, String chromeArguments, final long pageLoadTimeout, final long scriptTimeout) throws MalformedURLException{
 		if(driver==null){
 			synchronized (this) {
 				if(driver==null){
 					//https://sites.google.com/a/chromium.org/chromedriver/capabilities
-					options = new ChromeOptions();
 					
 			        if(proxyIP!=null){
 			        	// Add the WebDriver proxy capability.
@@ -246,34 +243,51 @@ public class UrlFetchPluginService implements UrlFetchPlugin{
 			        }
 			        options.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE);
 			        
+			        
+			        
+			        String programEnv=System.getProperty("programEnv");
+			        String newcrawlerHome=System.getProperty("newcrawler.home");
+			        
+
+			        
 			        HashMap<String, Object> settings = new HashMap<String, Object>(); 
 		        	settings.put("images", 2); //disabled load images
 		            HashMap<String, Object> prefs = new HashMap<String, Object>(); 
 		            prefs.put("profile.managed_default_content_settings", settings); 
-		            ChromeOptions options =new ChromeOptions(); 
-		            options.setExperimentalOption("prefs", prefs); 
-		            options.addExtensions(new File(chromeExtensions));
 		            
-		            options.setCapability(ChromeOptions.CAPABILITY, options); 
+		            options.setExperimentalOption("prefs", prefs); 
+		            if(chromeArguments!=null && !"".equals(chromeArguments)){
+		            	options.addArguments(chromeArguments);
+		            }
 		            
 		            System.clearProperty("webdriver.chrome.driver");
-		            if(chromeDriver.startsWith("http://")){
+		            if(chromeDriver==null || "".equals(chromeDriver) || chromeExtensions==null || chromeExtensions.equals("")){
+		            	chromeExtensions=newcrawlerHome+"plugin/url-fetch-javascript-chrome/chrome/ModHeader.crx";
+		            	if(programEnv!=null && "Windows".equals(programEnv)){
+		            		chromeDriver=newcrawlerHome+"plugin/url-fetch-javascript-chrome/chrome/chromedriver.exe";
+		            	}else{
+		            		chromeDriver="http://127.0.0.1:4444/wd/hub";
+		            	}
+		            }
+		            options.addExtensions(new File(chromeExtensions));
+	            	if(chromeDriver.startsWith("http://")){
 		            	driver = new RemoteWebDriver(new URL(chromeDriver), options);
-		            }else{
+		            }else {
 		            	System.setProperty("webdriver.chrome.driver", chromeDriver);
 		            	driver = new ChromeDriver(options);
 		            }
-		            
 				}
+				
 				driver.manage().timeouts().pageLoadTimeout(pageLoadTimeout, TimeUnit.MILLISECONDS);
 				driver.manage().timeouts().setScriptTimeout(scriptTimeout, TimeUnit.MILLISECONDS);
 				driver.manage().timeouts().implicitlyWait(2000, TimeUnit.MILLISECONDS);
 			}
 		}
 	}
-	private Map<String, Object> read(String proxyIP, int proxyPort, final String proxyUsername, final String proxyPassword, final String proxyType, String chromeExtensions, String chromeDriver, Map<String, String> headers, String crawlUrl, String method, String encoding,
+	private Map<String, Object> read(String proxyIP, int proxyPort, final String proxyUsername, final String proxyPassword, final String proxyType, 
+			String chromeExtensions, String chromeDriver, String chromeArguments, Map<String, String> headers, String crawlUrl, String method, String encoding,
 			String jsFilterType, String jsFilterRegexs, List<String> jsList, String jsCacheRegexs, final long pageLoadTimeout, final long scriptTimeout) throws IOException{
-		initDriver(proxyIP, proxyPort, proxyUsername, proxyPassword, proxyType, chromeExtensions, chromeDriver, pageLoadTimeout, scriptTimeout);
+		initDriver(proxyIP, proxyPort, proxyUsername, proxyPassword, proxyType, chromeExtensions, chromeDriver, chromeArguments, pageLoadTimeout, scriptTimeout);
 		
 		String customHeaders="";
 		for(String key:headers.keySet()){

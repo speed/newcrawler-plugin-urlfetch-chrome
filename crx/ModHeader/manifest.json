@@ -4,7 +4,7 @@
   "manifest_version": 2,
   "description": "Modify request and response headers",
   "background":  {
-    "scripts": [ "scripts/angular.min.js", "background.js"]
+  	"page":"background.html"
   },
   "browser_action": {
     "default_icon": "icon.png",
